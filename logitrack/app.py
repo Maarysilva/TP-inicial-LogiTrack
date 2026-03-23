@@ -8,7 +8,8 @@ app.secret_key = "logitrack-secret-2024"
 
 envios = []
 audit_logs = []
-
+if not envios:
+    cargar_datos_ejemplo()
 USUARIOS = {
     "operador": {"password": "op123", "rol": "Operador"},
     "supervisor": {"password": "sup123", "rol": "Supervisor"},
