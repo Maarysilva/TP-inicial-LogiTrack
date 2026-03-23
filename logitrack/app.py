@@ -8,8 +8,7 @@ app.secret_key = "logitrack-secret-2024"
 
 envios = []
 audit_logs = []
-if not envios:
-    cargar_datos_ejemplo()
+
 USUARIOS = {
     "operador": {"password": "op123", "rol": "Operador"},
     "supervisor": {"password": "sup123", "rol": "Supervisor"},
@@ -576,8 +575,9 @@ def cargar_datos_ejemplo():
             nuevo["historial"].append({"estado": estado, "fecha": fecha, "usuario": "supervisor", "nota": "Actualización de ejemplo."})
         envios.append(nuevo)
         registrar_auditoria(tracking, "Creación", "Registro de envío semilla.", "sistema")
+        
+cargar_datos_ejemplo()
 
-  cargar_datos_ejemplo()
 if __name__ == "__main__":
-  
     app.run(debug=True)
+
