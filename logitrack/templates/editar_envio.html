@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Editar {{ envio.tracking_id }} · LogiTrack{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1 class="page-title">Editar Envío</h1><p class="page-subtitle">Solo supervisor · hasta 5 días desde la creación</p></div>
+    <a href="{{ url_for('detalle_envio', tracking_id=envio.tracking_id) }}" class="btn btn-secondary">← Volver</a>
+</div>
+<div class="form-card">
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group"><label>Nombre del Remitente</label><input type="text" name="remitente_nombre" value="{{ envio.remitente.nombre }}" required></div>
+            <div class="form-group"><label>DNI del Remitente</label><input type="text" name="remitente_dni" value="{{ envio.remitente.dni }}" required></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Dirección del Remitente</label><input type="text" name="remitente_direccion" value="{{ envio.remitente.direccion }}" required></div>
+            <div class="form-group"><label>Teléfono del Remitente</label><input type="tel" name="remitente_telefono" value="{{ envio.remitente.telefono }}" required></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Email del Remitente</label><input type="email" name="remitente_email" value="{{ envio.remitente.email }}"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Nombre del Destinatario</label><input type="text" name="destinatario_nombre" value="{{ envio.destinatario.nombre }}" required></div>
+            <div class="form-group"><label>DNI del Destinatario</label><input type="text" name="destinatario_dni" value="{{ envio.destinatario.dni }}" required></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Dirección del Destinatario</label><input type="text" name="destinatario_direccion" value="{{ envio.destinatario.direccion }}" required></div>
+            <div class="form-group"><label>Teléfono del Destinatario</label><input type="tel" name="destinatario_telefono" value="{{ envio.destinatario.telefono }}" required></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Email del Destinatario</label><input type="email" name="destinatario_email" value="{{ envio.destinatario.email }}"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Origen</label><input type="text" name="origen" value="{{ envio.origen }}" required></div>
+            <div class="form-group"><label>Destino</label><input type="text" name="destino" value="{{ envio.destino }}" required></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Peso</label><input type="text" name="peso" value="{{ envio.peso }}" required></div>
+            <div class="form-group"><label>Dimensiones</label><input type="text" name="dimensiones" value="{{ envio.dimensiones }}" required></div>
+        </div>
+        <div class="form-group"><label>Descripción</label><textarea name="descripcion" rows="3">{{ envio.descripcion }}</textarea></div>
+        <div class="form-actions"><button type="submit" class="btn btn-primary">Guardar cambios</button></div>
+    </form>
+</div>
+{% endblock %}

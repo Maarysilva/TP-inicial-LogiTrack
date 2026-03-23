@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Hoja de Ruta · LogiTrack{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1 class="page-title">Hoja de ruta</h1><p class="page-subtitle">Entregas asignadas con información de destinatarios</p></div>
+</div>
+{% if envios %}
+<div class="table-wrapper">
+<table class="tabla">
+    <thead><tr><th>Tracking ID</th><th>Destinatario</th><th>Dirección</th><th>Teléfono</th><th>Estado</th><th>Acción</th></tr></thead>
+    <tbody>
+        {% for envio in envios %}
+        <tr>
+            <td><code class="tracking-code">{{ envio.tracking_id }}</code></td>
+            <td>{{ envio.destinatario.nombre }}</td>
+            <td>{{ envio.destinatario.direccion }}</td>
+            <td>{{ envio.destinatario.telefono }}</td>
+            <td><span class="badge badge-{{ envio.estado | replace(' ', '-') | lower }}">{{ envio.estado }}</span></td>
+            <td><a class="btn btn-sm" href="{{ url_for('detalle_envio', tracking_id=envio.tracking_id) }}">Ver detalles</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+<div class="empty-state"><div class="empty-icon">🚚</div><p>No tenés entregas asignadas actualmente.</p></div>
+{% endif %}
+{% endblock %}

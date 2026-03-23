@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogiTrack · Iniciar sesión</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="login-page">
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}"><span>{{ message }}</span><button onclick="this.parentElement.remove()">✕</button></div>
+            {% endfor %}
+        {% endwith %}
+    </div>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-logo">◈</div>
+                <h1>LogiTrack</h1>
+                <p>Sistema de Seguimiento de Envíos</p>
+            </div>
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="form-group">
+                    <label for="usuario">Usuario</label>
+                    <input type="text" id="usuario" name="usuario" placeholder="operador / supervisor / transportista" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" placeholder="••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Ingresar</button>
+            </form>
+            <div class="login-hint">
+                <p><strong>Demo:</strong></p>
+                <p>operador / op123</p>
+                <p>supervisor / sup123</p>
+                <p>transportista / tra123</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

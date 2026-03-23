@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Auditoría · LogiTrack{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1 class="page-title">Auditoría</h1><p class="page-subtitle">Historial de cambios de estado y modificaciones de datos</p></div>
+</div>
+
+<form method="GET" action="{{ url_for('auditoria') }}" class="search-form">
+    <div class="search-bar">
+        <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar por tracking ID…" autocomplete="off">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+        {% if busqueda %}<a href="{{ url_for('auditoria') }}" class="btn btn-secondary">Limpiar</a>{% endif %}
+    </div>
+</form>
+
+{% if grouped_logs %}
+    {% for tracking_id, logs in grouped_logs %}
+    <div class="audit-group">
+        <h3 class="audit-tracking">Tracking ID: <code class="tracking-code">{{ tracking_id }}</code></h3>
+        <div class="table-wrapper">
+            <table class="tabla">
+                <thead>
+                    <tr><th>Fecha</th><th>Acción</th><th>Detalle</th><th>Usuario</th></tr>
+                </thead>
+                <tbody>
+                    {% for log in logs | sort(attribute='fecha', reverse=True) %}
+                    <tr><td>{{ log.fecha }}</td><td>{{ log.accion }}</td><td>{{ log.detalle }}</td><td>{{ log.usuario }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">📋</div>
+    {% if busqueda %}
+        <p>No se encontraron resultados para "<strong>{{ busqueda }}</strong>".</p>
+        <a href="{{ url_for('auditoria') }}" class="btn btn-secondary">Ver todos</a>
+    {% else %}
+        <p>No hay registros de auditoría aún.</p>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

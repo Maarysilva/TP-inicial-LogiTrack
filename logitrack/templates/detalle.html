@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}{{ envio.tracking_id }} · LogiTrack{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Detalle de Envío</h1>
+        <code class="tracking-code-lg">{{ envio.tracking_id }}</code>
+    </div>
+    <div class="header-actions">
+        <span class="badge badge-lg badge-{{ envio.estado | replace(' ', '-') | lower }}">{{ envio.estado }}</span>
+        {% if puede_editar %}<a href="{{ url_for('editar_envio', tracking_id=envio.tracking_id) }}" class="btn btn-primary">Editar</a>{% endif %}
+        <a href="{% if rol == 'Transportista' %}{{ url_for('hoja_ruta') }}{% else %}{{ url_for('listar_envios') }}{% endif %}" class="btn btn-secondary">← Volver</a>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <div class="detail-card">
+        <h3 class="card-title">📦 Información del Envío</h3>
+        <dl class="detail-list">
+            <div class="detail-row"><dt>Remitente</dt><dd>{{ envio.remitente.nombre }}{% if rol == "Supervisor" %}<br><small>DNI: {{ envio.remitente.dni }}<br>📍 {{ envio.remitente.direccion }}<br>📞 {{ envio.remitente.telefono }}<br>✉️ {{ envio.remitente.email }}</small>{% endif %}</dd></div>
+            <div class="detail-row"><dt>Destinatario</dt><dd>{{ envio.destinatario.nombre }}{% if rol == "Supervisor" %}<br><small>DNI: {{ envio.destinatario.dni }}<br>📍 {{ envio.destinatario.direccion }}<br>📞 {{ envio.destinatario.telefono }}<br>✉️ {{ envio.destinatario.email }}</small>{% endif %}</dd></div>
+            <div class="detail-row"><dt>Origen</dt><dd>{{ envio.origen }}</dd></div>
+            <div class="detail-row"><dt>Destino</dt><dd>{{ envio.destino }}</dd></div>
+            <div class="detail-row"><dt>Peso</dt><dd>{{ envio.peso }} kg</dd></div>
+            <div class="detail-row"><dt>Dimensiones</dt><dd>{{ envio.dimensiones }}</dd></div>
+            {% if rol != "Transportista" %}<div class="detail-row"><dt>Descripción</dt><dd>{{ envio.descripcion }}</dd></div>{% endif %}
+            <div class="detail-row"><dt>Fecha de creación</dt><dd>{{ envio.fecha_creacion }}</dd></div>
+            {% if rol != "Transportista" %}<div class="detail-row"><dt>Transportista</dt><dd>{{ envio.transportista or 'Sin asignar' }}</dd></div>{% endif %}
+            {% if rol == "Supervisor" %}<div class="detail-row"><dt>Consentimiento Ley 25.326</dt><dd>{% if envio.acepta_ley %}Aceptado el {{ envio.acepta_ley_fecha }}{% else %}No registrado{% endif %}</dd></div>{% endif %}
+        </dl>
+    </div>
+
+    <div class="detail-card">
+        <h3 class="card-title">🔄 Cambiar Estado</h3>
+        {% if envio.estado in ['Entregado', 'Cancelado', 'Entregado a remitente'] %}
+            <div class="estado-final"><p>Este envío está finalizado y no puede ser modificado.</p></div>
+        {% elif rol == 'Operador' and envio.estado != 'Ingresado' %}
+            <div class="estado-final"><p>Como operador sólo podés cambiar el estado cuando el envío está "Ingresado".</p></div>
+        {% else %}
+            <p class="estado-info">Estado actual: <span class="badge badge-{{ envio.estado | replace(' ', '-') | lower }}">{{ envio.estado }}</span></p>
+            <form method="POST" action="{{ url_for('cambiar_estado', tracking_id=envio.tracking_id) }}">
+                <div class="form-group">
+                    <label for="nuevo_estado">Nuevo estado</label>
+                    <select id="nuevo_estado" name="nuevo_estado" required>
+                        <option value="">— Seleccionar —</option>
+                        {% if rol == 'Operador' %}
+                            {% if envio.estado == 'Ingresado' %}
+                            <option value="Cancelado">Cancelado</option>
+                            {% endif %}
+                        {% else %}
+                            {% for estado in estados %}
+                                {% if estado != envio.estado and estado != 'Ingresado' %}
+                                <option value="{{ estado }}">{{ estado }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                </div>
+                {% if rol == 'Supervisor' %}
+                <div class="form-group" id="transportista-group" style="display: none;">
+                    <label for="transportista">Transportista (obligatorio para “En tránsito”)</label>
+                    <select id="transportista" name="transportista">
+                        <option value="">— Sin asignar —</option>
+                        <option value="transportista" {% if envio.transportista == 'transportista' %}selected{% endif %}>transportista</option>
+                    </select>
+                </div>
+                {% endif %}
+                <div class="form-group"><label for="nota">Nota</label><textarea id="nota" name="nota" rows="2"></textarea></div>
+                <button type="submit" class="btn btn-primary">Actualizar Estado</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="detail-card historial-card">
+    <h3 class="card-title">📋 Historial de Estados</h3>
+    <div class="timeline">
+        {% for evento in envio.historial | reverse %}
+        <div class="timeline-item {% if loop.first %}timeline-item-current{% endif %}">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+                <div class="timeline-header">
+                    <span class="badge badge-{{ evento.estado | replace(' ', '-') | lower }}">{{ evento.estado }}</span>
+                    <span class="timeline-fecha">{{ evento.fecha }}</span>
+                    <span class="timeline-usuario">por {{ evento.usuario }}</span>
+                </div>
+                <p class="timeline-nota">{{ evento.nota }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const estadoSelect = document.getElementById('nuevo_estado');
+if (estadoSelect) {
+    estadoSelect.addEventListener('change', function() {
+        const transportistaGroup = document.getElementById('transportista-group');
+        const transportistaSelect = document.getElementById('transportista');
+        if (!transportistaGroup || !transportistaSelect) return;
+
+        if (this.value === 'En tránsito') {
+            transportistaGroup.style.display = 'block';
+            transportistaSelect.required = true;
+        } else {
+            transportistaGroup.style.display = 'none';
+            transportistaSelect.required = false;
+            transportistaSelect.value = ''; // Limpiar selección
+        }
+    });
+}
+</script>
+{% endblock %}

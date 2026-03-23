@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LogiTrack{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% if session.usuario %}
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="brand-icon">◈</span>
+            <span class="brand-name">LogiTrack</span>
+        </div>
+        <ul class="nav-links">
+            {% if session.rol == 'Supervisor' %}
+            <li><a href="{{ url_for('panel') }}" class="{% if request.endpoint == 'panel' %}active{% endif %}">Panel</a></li>
+            {% endif %}
+
+            {% if session.rol in ['Supervisor', 'Operador'] %}
+            <li><a href="{{ url_for('listar_envios') }}" class="{% if request.endpoint in ['listar_envios','detalle_envio','editar_envio'] %}active{% endif %}">Envíos</a></li>
+            <li><a href="{{ url_for('nuevo_envio') }}" class="{% if request.endpoint == 'nuevo_envio' %}active{% endif %}">+ Nuevo</a></li>
+            {% endif %}
+
+            {% if session.rol == 'Supervisor' %}
+            <li><a href="{{ url_for('auditoria') }}" class="{% if request.endpoint == 'auditoria' %}active{% endif %}">Auditoría</a></li>
+            {% endif %}
+
+            {% if session.rol == 'Transportista' %}
+            <li><a href="{{ url_for('hoja_ruta') }}" class="{% if request.endpoint == 'hoja_ruta' %}active{% endif %}">Hoja de ruta</a></li>
+            {% endif %}
+        </ul>
+        <div class="nav-user">
+            <button id="theme-toggle" class="btn-theme-toggle" title="Cambiar tema">☀️</button>
+            <span class="user-badge">{{ session.rol }}</span>
+            <span class="user-name">{{ session.usuario }}</span>
+            <a href="{{ url_for('logout') }}" class="btn-logout">Salir</a>
+        </div>
+    </nav>
+    {% endif %}
+
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">
+                <span>{{ message }}</span>
+                <button onclick="this.parentElement.remove()">✕</button>
+            </div>
+            {% endfor %}
+        {% endwith %}
+    </div>
+
+    <main class="main-content">{% block content %}{% endblock %}</main>
+    {% if session.usuario %}
+    <footer class="footer"><p>LogiTrack · Prototipo v1.1</p></footer>
+    {% endif %}
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

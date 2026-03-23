@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Panel · LogiTrack{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1 class="page-title">Panel General</h1><p class="page-subtitle">Visible solo para supervisor</p></div>
+    <a href="{{ url_for('nuevo_envio') }}" class="btn btn-primary">+ Nuevo Envío</a>
+</div>
+<div class="stats-grid">
+    <div class="stat-card stat-total"><div class="stat-number">{{ total }}</div><div class="stat-label">Total de envíos</div></div>
+    {% for estado, cantidad in stats.items() %}
+    <div class="stat-card"><div class="stat-number">{{ cantidad }}</div><div class="stat-label">{{ estado }}</div></div>
+    {% endfor %}
+</div>
+<div class="section-header"><h2>Envíos recientes</h2><a href="{{ url_for('listar_envios') }}" class="link-ver-todos">Ver todos →</a></div>
+<div class="table-wrapper">
+    <table class="tabla"><thead><tr><th>Tracking ID</th><th>Remitente</th><th>Destinatario</th><th>Estado</th><th>Fecha</th><th></th></tr></thead><tbody>
+    {% for envio in envios %}<tr><td><code class="tracking-code">{{ envio.tracking_id }}</code></td><td>{{ envio.remitente.nombre }}</td><td>{{ envio.destinatario.nombre }}</td><td><span class="badge badge-{{ envio.estado | replace(' ', '-') | lower }}">{{ envio.estado }}</span></td><td>{{ envio.fecha_creacion }}</td><td><a href="{{ url_for('detalle_envio', tracking_id=envio.tracking_id) }}" class="btn btn-sm">Ver</a></td></tr>{% endfor %}
+    </tbody></table>
+</div>
+{% endblock %}
